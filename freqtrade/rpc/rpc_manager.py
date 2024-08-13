@@ -54,6 +54,12 @@ class RPCManager:
             apiserver = ApiServer(config)
             apiserver.add_rpc_handler(self._rpc)
             self.registered_modules.append(apiserver)
+            # 企业微信模块开关
+        if config.get("wxwork", {}).get("enabled", False):
+            logger.info("正在启用 RPC: 企业微信 ...")
+            from freqtrade.rpc.wxwork import WxWork
+
+            self.registered_modules.append(WxWork(self._rpc, config))
 
     def cleanup(self) -> None:
         """Stops all enabled rpc modules"""

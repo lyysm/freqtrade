@@ -124,6 +124,19 @@ class Webhook(RPCHandler):
                         headers={"Content-Type": "text/plain"},
                         timeout=self._timeout,
                     )
+                    # 支持企业微信
+                elif self._format == "wxwork":
+                    print(payload)
+                    title = payload["title"]
+                    body = payload["body"]
+                    content = title + body
+                    request = {"msgtype": "markdown", "markdown": {"content": content}}
+                    logger.info("wxwork request:", request)
+                    response = post(
+                        self._url,
+                        json=request,
+                        headers={"Content-Type": "application/json"},
+                    )
                 else:
                     raise NotImplementedError(f"Unknown format: {self._format}")
 

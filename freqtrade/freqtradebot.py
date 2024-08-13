@@ -167,6 +167,19 @@ class FreqtradeBot(LoggingMixin):
                 for minutes in [1, 31]:
                     t = str(time(time_slot, minutes, 2))
                     self._schedule.every().day.at(t).do(update)
+            # 企业微信定时通知
+            self._wxwork_schedule_enabled = self.config["wxwork"].get("schedule", False)
+            self._wxwork_schedule_period = self.config["wxwork"].get("schedule_period", 60)
+            if self._wxwork_schedule_enabled:
+                from freqtrade.rpc.wxwork import WxWork
+
+                logger.info("开启企业微信定时通知,周期 %d 分钟", self._wxwork_schedule_period)
+
+                def notification():
+                    logger.info("发送企业微信定时通知...")
+                    WxWork.send_balance(self.rpc._rpc, self.config)
+
+                self._schedule.every(self._wxwork_schedule_period).minutes.do(notification)
 
         self._schedule.every().day.at("00:02").do(self.exchange.ws_connection_reset)
 
